@@ -6,7 +6,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from flask_talisman import Talisman
-from flask_seasurf import SeaSurf
 import re
 import logging
 from datetime import datetime
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
 
-# Security headers and CSRF protection
+# Security headers
 Talisman(app, 
     content_security_policy={
         'default-src': "'self'",
@@ -34,9 +33,6 @@ Talisman(app,
     },
     force_https=False  # Set to True in production
 )
-
-# CSRF protection
-csrf = SeaSurf(app)
 
 # CORS configuration
 CORS(app, origins=['http://localhost:5000', 'https://your-domain.com'])
