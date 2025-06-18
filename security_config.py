@@ -7,10 +7,10 @@ class SecurityConfig:
     # Rate limiting configuration
     RATE_LIMITS = {
         'chat_per_minute': 10,
-        'chat_per_hour': 50,
-        'chat_per_day': 200,
-        'global_per_minute': 100,
-        'global_per_hour': 1000
+        'chat_per_hour': 20,
+        'chat_per_day': 30,
+        'global_per_minute': 50,
+        'global_per_hour': 100
     }
     
     # Content filtering
