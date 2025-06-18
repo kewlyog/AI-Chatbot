@@ -24,7 +24,7 @@
             <button onclick="sendMessage()" id="send-button">Send</button>
         </div>
         <div class="security-info">
-            <small>Rate limited: 10/min, 50/hour, 200/day | Messages are sanitized for security</small>
+            <small>Rate limited: 10/min, 20/hour, 30/day | Messages are sanitized for security</small>
         </div>
     </div>
 
@@ -96,7 +96,7 @@
                     const data = await response.json();
                     
                     if (response.status === 429) {
-                        showError(`Rate limit exceeded. Please wait ${data.retry_after || 60} seconds before trying again.`);
+                        showError(data.error || 'Rate limit exceeded. Please try again later.');
                     } else if (response.status === 400) {
                         showError(data.error || 'Invalid request');
                     } else if (response.status === 503) {

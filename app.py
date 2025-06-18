@@ -207,8 +207,12 @@ def ratelimit_handler(e):
         429,
         "Rate limit exceeded"
     )
+    
+    # Get the specific limit that was exceeded
+    limit_info = f"Rate limit exceeded. Limits: {SecurityConfig.RATE_LIMITS['chat_per_minute']}/min, {SecurityConfig.RATE_LIMITS['chat_per_hour']}/hour, {SecurityConfig.RATE_LIMITS['chat_per_day']}/day"
+    
     return jsonify({
-        'error': 'Rate limit exceeded. Please try again later.',
+        'error': limit_info,
         'retry_after': e.retry_after if hasattr(e, 'retry_after') else 60
     }), 429
 
