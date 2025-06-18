@@ -32,4 +32,18 @@ python app.py
 - Real-time chat interface
 - Powered by OpenAI's GPT model
 - Clean and responsive design
-- Message history display 
+- Message history display
+- Comprehensive security features
+- Rate limiting and input validation
+
+## Security Features
+
+- Rate limiting: 10/min, 20/hour, 30/day
+- Input sanitization and validation
+- XSS and SQL injection protection
+- Request tracking and logging
+- Security headers and CORS protection
+
+## Deployment
+
+Last deployment: 2025-01-17 
