@@ -10,6 +10,7 @@
     <div class="chat-container">
         <div class="chat-header">
             <h1>AI Chatbot</h1>
+            <div class="security-badge">🔒 Secure</div>
         </div>
         <div class="chat-messages" id="chat-messages">
             <div class="message bot">
@@ -19,30 +20,66 @@
             </div>
         </div>
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message here...">
-            <button onclick="sendMessage()">Send</button>
+            <input type="text" id="user-input" placeholder="Type your message here... (max 500 characters)" maxlength="500">
+            <button onclick="sendMessage()" id="send-button">Send</button>
+        </div>
+        <div class="security-info">
+            <small>Rate limited: 10/min, 50/hour, 200/day | Messages are sanitized for security</small>
         </div>
     </div>
 
     <script>
-        function addMessage(message, isUser) {
+        let isProcessing = false;
+
+        function addMessage(message, isUser, requestId = null) {
             const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            let content = message;
+            if (requestId && !isUser) {
+                content += `<br><small class="request-id">Request ID: ${requestId}</small>`;
+            }
+            
             messageDiv.innerHTML = `
                 <div class="message-content">
-                    ${message}
+                    ${content}
                 </div>
             `;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
+        function showError(message) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'message error';
+            errorDiv.innerHTML = `
+                <div class="message-content">
+                    ⚠️ ${message}
+                </div>
+            `;
+            messagesDiv.appendChild(errorDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateButtonState(disabled) {
+            const button = document.getElementById('send-button');
+            const input = document.getElementById('user-input');
+            button.disabled = disabled;
+            input.disabled = disabled;
+            button.textContent = disabled ? 'Sending...' : 'Send';
+        }
+
         async function sendMessage() {
+            if (isProcessing) return;
+
             const input = document.getElementById('user-input');
             const message = input.value.trim();
             
             if (message) {
+                isProcessing = true;
+                updateButtonState(true);
                 addMessage(message, true);
                 input.value = '';
                 
@@ -50,28 +87,53 @@
                     const response = await fetch('/chat', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({ message })
                     });
                     
                     const data = await response.json();
                     
-                    if (data.error) {
-                        addMessage('Sorry, there was an error processing your request.', false);
+                    if (response.status === 429) {
+                        showError(`Rate limit exceeded. Please wait ${data.retry_after || 60} seconds before trying again.`);
+                    } else if (response.status === 400) {
+                        showError(data.error || 'Invalid request');
+                    } else if (response.status === 503) {
+                        showError('Service temporarily unavailable. Please try again later.');
+                    } else if (response.status === 500) {
+                        showError('Internal server error. Please try again later.');
+                    } else if (response.ok) {
+                        addMessage(data.response, false, data.request_id);
                     } else {
-                        addMessage(data.response, false);
+                        showError('An unexpected error occurred.');
                     }
                 } catch (error) {
-                    addMessage('Sorry, there was an error connecting to the server.', false);
+                    showError('Network error. Please check your connection and try again.');
+                } finally {
+                    isProcessing = false;
+                    updateButtonState(false);
                 }
             }
         }
 
         // Allow sending message with Enter key
         document.getElementById('user-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isProcessing) {
                 sendMessage();
+            }
+        });
+
+        // Real-time character count
+        document.getElementById('user-input').addEventListener('input', function(e) {
+            const maxLength = 500;
+            const currentLength = e.target.value.length;
+            const remaining = maxLength - currentLength;
+            
+            if (remaining < 50) {
+                e.target.style.borderColor = remaining < 10 ? '#ff4444' : '#ffaa00';
+            } else {
+                e.target.style.borderColor = '#ddd';
             }
         });
     </script>

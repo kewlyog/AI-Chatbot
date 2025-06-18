@@ -29,10 +29,21 @@ body {
     background-color: #075e54;
     color: white;
     border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .chat-header h1 {
     font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.security-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
@@ -56,6 +67,10 @@ body {
     align-items: flex-start;
 }
 
+.message.error {
+    align-items: center;
+}
+
 .message-content {
     max-width: 70%;
     padding: 12px 16px;
@@ -74,6 +89,19 @@ body {
     color: #303030;
 }
 
+.error .message-content {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.request-id {
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: block;
+}
+
 .chat-input {
     padding: 20px;
     background-color: #f0f0f0;
@@ -89,10 +117,16 @@ input[type="text"] {
     border-radius: 8px;
     font-size: 0.95rem;
     outline: none;
+    transition: border-color 0.2s;
 }
 
 input[type="text"]:focus {
     border-color: #075e54;
+}
+
+input[type="text"]:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
 }
 
 button {
@@ -104,10 +138,25 @@ button {
     cursor: pointer;
     font-size: 0.95rem;
     transition: background-color 0.2s;
+    min-width: 80px;
 }
 
-button:hover {
+button:hover:not(:disabled) {
     background-color: #128c7e;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.security-info {
+    padding: 10px 20px;
+    background-color: #e8f5e8;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    color: #2e7d32;
+    font-size: 0.8rem;
 }
 
 /* Scrollbar styling */
@@ -126,4 +175,50 @@ button:hover {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.processing {
+    animation: pulse 1.5s infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .chat-container {
+        width: 95%;
+        height: 95vh;
+    }
+    
+    .chat-header {
+        padding: 15px;
+    }
+    
+    .chat-header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .security-badge {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .message-content {
+        max-width: 85%;
+        font-size: 0.9rem;
+    }
+    
+    .chat-input {
+        padding: 15px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
 } 
